@@ -54,6 +54,17 @@ async function run() {
       const email = req.query.email;
       const query= {applicantEmail: email}
       const result = await applicationCollections.find(query).toArray()
+
+      for( const application of result){
+        console.log(application.jobId);
+         const query1={_id : new ObjectId(application.jobId)}
+      const job= await jobCollections.findOne(query1)
+      if(job){
+        application.title= job.title;
+        application.company = job.company;
+        application.company_logo = job.company_logo;
+      }
+      }
       res.send(result)
     })
 
@@ -61,6 +72,13 @@ async function run() {
     app.post('/job-application', async(req, res)=>{
       const application = req.body;
       const result = await applicationCollections.insertOne(application)
+      res.send(result)
+    })
+
+    app.delete('/job-application/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const result = await applicationCollections.deleteOne(query)
       res.send(result)
     })
     
